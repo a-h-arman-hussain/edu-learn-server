@@ -24,6 +24,7 @@ async function run() {
     await client.connect();
     const db = client.db("course-db");
     const coursesCollection = db.collection("courses");
+    const enrolledCoursesCollection = db.collection("my-enrolled-courses");
     // all course
     app.get("/courses", async (req, res) => {
       const result = await coursesCollection.find().toArray();
@@ -60,6 +61,7 @@ async function run() {
       });
     });
 
+    // my added course
     app.post("/courses", async (req, res) => {
       const data = req.body;
       const result = await coursesCollection.insertOne(data);
@@ -67,6 +69,21 @@ async function run() {
         success: true,
         result,
       });
+    });
+
+    // my enrolled courses
+    app.post("/enrolled-courses", async (req, res) => {
+      const data = req.body;
+      const result = await enrolledCoursesCollection.insertOne(data);
+      res.send(result);
+    });
+
+    app.get("/my-enrolled-courses", async (req, res) => {
+      const email = req.query.email;
+      const result = await enrolledCoursesCollection
+        .find({ enrolled_by: email })
+        .toArray();
+      res.send(result);
     });
 
     await client.db("admin").command({ ping: 1 });
