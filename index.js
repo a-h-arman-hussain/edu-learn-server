@@ -25,7 +25,6 @@ async function run() {
     const db = client.db("course-db");
     const coursesCollection = db.collection("courses");
     const enrolledCoursesCollection = db.collection("my-enrolled-courses");
-    console.log("enrolled", enrolledCoursesCollection);
 
     // all course
     app.get("/courses", async (req, res) => {
@@ -73,37 +72,13 @@ async function run() {
       });
     });
 
-    // my enrolled courses
+    // enrolled courses
     app.post("/enrolled-courses", async (req, res) => {
-      try {
-        const { courseId, enrolled_by } = req.body;
-
-        const exists = await enrolledCoursesCollection.findOne({
-          courseId,
-          enrolled_by,
-        });
-
-        if (exists) {
-          return res
-            .status(400)
-            .json({ error: "User already enrolled this course" });
-        }
-
-        const result = await enrolledCoursesCollection.insertOne(req.body);
-        res.status(201).json(result);
-      } catch (err) {
-        console.error(err);
-        res
-          .status(500)
-          .json({ error: "Failed to enroll course", details: err.message });
-      }
+      const data = req.body;
+      console.log(data);
+      const result = await enrolledCoursesCollection.insertOne(data);
+      res.send(result);
     });
-
-    // app.post("/enrolled-courses", async (req, res) => {
-    //   const data = req.body;
-    //   const result = await enrolledCoursesCollection.insertOne(data);
-    //   res.send(result);
-    // });
 
     app.get("/my-enrolled-courses", async (req, res) => {
       const email = req.query.email;
