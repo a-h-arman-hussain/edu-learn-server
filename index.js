@@ -27,8 +27,19 @@ async function run() {
     const enrolledCoursesCollection = db.collection("my-enrolled-courses");
 
     // all course
+    // Backend (Node/Express)
     app.get("/courses", async (req, res) => {
-      const result = await coursesCollection.find().toArray();
+      const search = req.query.search;
+      let query = {};
+
+      // যদি ক্লায়েন্ট থেকে সার্চ কুয়েরি আসে
+      if (search) {
+        query = {
+          title: { $regex: search, $options: "i" }, // 'i' মানে case-insensitive
+        };
+      }
+
+      const result = await coursesCollection.find(query).toArray();
       res.send(result);
     });
 
